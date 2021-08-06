@@ -6,7 +6,10 @@
 use crate::common::utils as u;
 use crate::double::Double;
 use std::f64;
-use std::num::FpCategory;
+use std::num::{FpCategory};
+use num::{Num, Zero, One};
+use crate::error::{ErrorKind, ParseDoubleError};
+use std::str::FromStr;
 
 impl Double {
     /// Calculates the absolute value of the `Double`.
@@ -337,6 +340,30 @@ impl Double {
     #[inline]
     pub fn is_subnormal(self) -> bool {
         self.classify() == FpCategory::Subnormal
+    }
+}
+
+impl Zero for Double {
+    fn zero() -> Self { Double::ZERO }
+    fn is_zero(&self) -> bool { *self == Double::ZERO }
+}
+
+impl One for Double {
+    fn one() -> Self { Double::ONE }
+    fn is_one(&self) -> bool { *self == Double::ONE }
+}
+
+pub enum FromStrRadixErrEnum {
+    RadixNotSupported,
+    ParseError(ParseDoubleError)
+}
+
+impl Num for Double {
+    type FromStrRadixErr = FromStrRadixErrEnum;
+
+    fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> { 
+        if radix != 10 { return Err(Self::FromStrRadixErr::RadixNotSupported); }
+        Self::from_str(str).map_err(|e| Self::FromStrRadixErr::ParseError(e))
     }
 }
 

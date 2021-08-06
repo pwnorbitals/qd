@@ -26,3 +26,4 @@ default = []
 no_fma = []
 
 [dependencies]
+num = "0.4.0"
